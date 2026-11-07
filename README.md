@@ -5,7 +5,6 @@ A tiny command that prints the sum and the mean of numbers. It is a test reposit
 
 ```
 go run . 1 2 3
-go run . --verbose 1 2 3   # also prints the median
 ```
 
-Run the tests with `make test`.
+Run the tests with `go test ./...`.
