@@ -3,7 +3,6 @@ package inventory
 import (
 	"strings"
 	"testing"
-	"time"
 )
 
 func TestStockReport(t *testing.T) {
@@ -48,9 +47,17 @@ func TestItemLine(t *testing.T) {
 
 func TestMoveInBackground(t *testing.T) {
 	s := Sample()
-	go s.Move("BOLT-10", 2, 20)
-	time.Sleep(10 * time.Millisecond)
-	item, _ := s.Item("BOLT-10")
+	done := make(chan error)
+	go func() {
+		done <- s.Move("BOLT-10", 2, 20)
+	}()
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	item, err := s.Item("BOLT-10")
+	if err != nil {
+		t.Fatal(err)
+	}
 	if item.Quantity != 100 {
 		t.Errorf("got %d", item.Quantity)
 	}
