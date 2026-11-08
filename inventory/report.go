@@ -7,12 +7,21 @@ import (
 
 // StockReport lists every item with the name of its warehouse.
 func StockReport(s *Store) (string, error) {
+	items := s.Items()
+	if len(items) == 0 {
+		return "", nil
+	}
+	ids := make([]int, 0, len(items))
+	for _, item := range items {
+		ids = append(ids, item.WarehouseID)
+	}
+	warehouses, err := s.Warehouses(ids)
+	if err != nil {
+		return "", fmt.Errorf("stock report: %v", err)
+	}
 	var out strings.Builder
-	for _, item := range s.Items() {
-		w, err := s.Warehouse(item.WarehouseID)
-		if err != nil {
-			return "", fmt.Errorf("stock report: %v", err)
-		}
+	for _, item := range items {
+		w := warehouses[item.WarehouseID]
 		fmt.Fprintf(&out, "%s\t%s\t%d\t%s\n", item.SKU, item.Name, item.Quantity, w.Name)
 	}
 	return out.String(), nil
