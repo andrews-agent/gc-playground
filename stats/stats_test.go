@@ -16,3 +16,27 @@ func TestMean(t *testing.T) {
 		t.Errorf("Mean(nil) = %g, want 0", got)
 	}
 }
+
+func TestMax(t *testing.T) {
+	tests := []struct {
+		name    string
+		numbers []float64
+		want    float64
+	}{
+		{"single", []float64{4}, 4},
+		{"largest first", []float64{3, 1, 2}, 3},
+		{"largest middle", []float64{1, 3, 2}, 3},
+		{"largest last", []float64{1, 2, 3}, 3},
+		{"negative", []float64{-3, -1, -2}, -1},
+		{"mixed signs", []float64{-3, 0, 2, -1}, 2},
+		{"duplicates", []float64{2, 2, 1}, 2},
+		{"fractional", []float64{1.25, 1.75, 1.5}, 1.75},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Max(tt.numbers); got != tt.want {
+				t.Errorf("Max(%v) = %g, want %g", tt.numbers, got, tt.want)
+			}
+		})
+	}
+}
