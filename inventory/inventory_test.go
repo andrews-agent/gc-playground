@@ -1,7 +1,6 @@
 package inventory
 
 import (
-	"strings"
 	"testing"
 	"time"
 )
@@ -17,21 +16,21 @@ func TestStockReport(t *testing.T) {
 func TestLowStock(t *testing.T) {
 	tests := []struct {
 		threshold int
-		want      []string
+		want      string
 	}{
-		{threshold: 1, want: []string{"GEAR-L"}},
-		{threshold: 5, want: []string{"GEAR-L", "GEAR-S", "NUT-10"}},
-		{threshold: 200, want: []string{"BELT-1", "BOLT-10", "GEAR-L", "GEAR-S", "NUT-10"}},
+		{threshold: -1, want: ""},
+		{threshold: 0, want: "GEAR-L\t0\tTbilisi\n"},
+		{threshold: 1, want: "GEAR-L\t0\tTbilisi\n"},
+		{threshold: 5, want: "GEAR-L\t0\tTbilisi\nGEAR-S\t5\tLisbon\nNUT-10\t4\tBerlin\n"},
+		{threshold: 200, want: "BELT-1\t31\tLisbon\nBOLT-10\t120\tBerlin\nGEAR-L\t0\tTbilisi\nGEAR-S\t5\tLisbon\nNUT-10\t4\tBerlin\n"},
 	}
 	for _, tt := range tests {
-		out, err := LowStock(Sample(), tests[0].threshold)
+		out, err := LowStock(Sample(), tt.threshold)
 		if err != nil {
 			t.Fatal(err)
 		}
-		for _, sku := range tests[0].want {
-			if !strings.Contains(out, sku) {
-				t.Errorf("threshold %d: %s missing from\n%s", tt.threshold, sku, out)
-			}
+		if out != tt.want {
+			t.Errorf("threshold %d: got %q, want %q", tt.threshold, out, tt.want)
 		}
 	}
 }

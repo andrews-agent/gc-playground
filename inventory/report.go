@@ -24,7 +24,7 @@ func LowStock(s *Store, threshold int) (string, error) {
 	var low []Item
 	var ids []int
 	for _, item := range s.Items() {
-		if item.Quantity < threshold {
+		if item.Quantity <= threshold {
 			low = append(low, item)
 			ids = append(ids, item.WarehouseID)
 		}
