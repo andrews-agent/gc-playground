@@ -19,6 +19,7 @@ func Mean(numbers []float64) float64 {
 }
 
 // Max returns the largest number.
+// It panics if numbers is empty.
 func Max(numbers []float64) float64 {
 	max := numbers[0]
 	for _, n := range numbers {
