@@ -5,11 +5,42 @@ import (
 )
 
 func TestStockReport(t *testing.T) {
-	out, err := StockReport(Sample())
+	s := Sample()
+	s.Queries = 0
+	out, err := StockReport(s)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(out)
+	want := "BELT-1\tDrive belt\t31\tLisbon\nBOLT-10\tBolt 10 mm\t120\tBerlin\nGEAR-L\tLarge gear\t0\tTbilisi\nGEAR-S\tSmall gear\t5\tLisbon\nNUT-10\tNut 10 mm\t4\tBerlin\n"
+	if out != want {
+		t.Errorf("report = %q, want %q", out, want)
+	}
+	if s.Queries != 2 {
+		t.Errorf("queries = %d, want 2", s.Queries)
+	}
+}
+
+func TestStockReportEmpty(t *testing.T) {
+	s := NewStore()
+	out, err := StockReport(s)
+	if err != nil || out != "" {
+		t.Fatalf("StockReport(empty) = %q, %v", out, err)
+	}
+	if s.Queries != 1 {
+		t.Errorf("queries = %d, want 1", s.Queries)
+	}
+}
+
+func TestStockReportMissingWarehouse(t *testing.T) {
+	s := Sample()
+	delete(s.warehouses, 1)
+	out, err := StockReport(s)
+	if err == nil || err.Error() != "stock report: warehouse 1: not found" {
+		t.Fatalf("error = %v, want missing warehouse error", err)
+	}
+	if out != "" {
+		t.Errorf("report = %q, want no partial output", out)
+	}
 }
 
 func TestLowStock(t *testing.T) {
