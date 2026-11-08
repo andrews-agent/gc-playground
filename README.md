@@ -7,4 +7,6 @@ A tiny command that prints the sum and the mean of numbers. It is a test reposit
 go run . 1 2 3
 ```
 
-Run the tests with `go test ./...`.
+There is also an `inventory` command over a sample stock: see [docs/inventory.md](docs/inventory.md).
+
+Run the tests with `go test ./...`, or everything with `make check`.
