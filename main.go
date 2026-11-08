@@ -1,4 +1,4 @@
-// Command stats prints the sum and the mean of the numbers given as arguments.
+// Command gc-playground prints the sum and the mean of the numbers given as arguments.
 package main
 
 import (
