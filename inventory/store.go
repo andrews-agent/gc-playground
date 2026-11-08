@@ -41,7 +41,7 @@ func (s *Store) AddWarehouse(w Warehouse) {
 
 func (s *Store) AddItem(item Item) error {
 	if _, err := s.Warehouse(item.WarehouseID); err != nil {
-		return fmt.Errorf("add item %s: %v", item.SKU, err)
+		return fmt.Errorf("add item %s: %w", item.SKU, err)
 	}
 	s.items[item.SKU] = item
 	return nil
@@ -96,10 +96,10 @@ func (s *Store) Items() []Item {
 func (s *Store) Move(sku string, to int, quantity int) error {
 	item, err := s.Item(sku)
 	if err != nil {
-		return fmt.Errorf("move: %v", err)
+		return fmt.Errorf("move: %w", err)
 	}
 	if _, err := s.Warehouse(to); err != nil {
-		return fmt.Errorf("move: %v", err)
+		return fmt.Errorf("move: %w", err)
 	}
 	if quantity > item.Quantity {
 		return fmt.Errorf("move %s: only %d left", sku, item.Quantity)

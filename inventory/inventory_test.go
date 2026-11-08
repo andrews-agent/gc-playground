@@ -1,8 +1,40 @@
 package inventory
 
 import (
+	"errors"
 	"testing"
 )
+
+func TestNotFoundWrapping(t *testing.T) {
+	tests := []struct {
+		name string
+		run  func(*Store) error
+	}{
+		{"add item warehouse", func(s *Store) error {
+			return s.AddItem(Item{SKU: "MISSING", WarehouseID: 99})
+		}},
+		{"move item", func(s *Store) error { return s.Move("MISSING", 1, 1) }},
+		{"move warehouse", func(s *Store) error { return s.Move("BOLT-10", 99, 1) }},
+		{"show item", func(s *Store) error { _, err := ItemLine(s, "MISSING"); return err }},
+		{"show warehouse", func(s *Store) error {
+			delete(s.warehouses, 1)
+			_, err := ItemLine(s, "BOLT-10")
+			return err
+		}},
+		{"stock warehouse", func(s *Store) error {
+			delete(s.warehouses, 1)
+			_, err := StockReport(s)
+			return err
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.run(Sample()); !errors.Is(err, ErrNotFound) {
+				t.Errorf("error = %v, want ErrNotFound in chain", err)
+			}
+		})
+	}
+}
 
 func TestStockReport(t *testing.T) {
 	out, err := StockReport(Sample())
