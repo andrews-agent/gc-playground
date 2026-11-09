@@ -2,6 +2,7 @@ package inventory
 
 import (
 	"errors"
+	"slices"
 	"testing"
 )
 
@@ -85,6 +86,34 @@ func TestItemLine(t *testing.T) {
 	}
 	if line != "GEAR-S Small gear: 5 in Lisbon" {
 		t.Errorf("got %q", line)
+	}
+}
+
+func TestRejectedMovePreservesItems(t *testing.T) {
+	tests := []struct {
+		name     string
+		sku      string
+		to       int
+		quantity int
+	}{
+		{"missing item", "MISSING", 2, 1},
+		{"missing warehouse", "BOLT-10", 99, 1},
+		{"insufficient stock", "BOLT-10", 2, 121},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := Sample()
+			if err := s.AddItem(Item{SKU: "BOLT-10@2", Name: "Bolt 10 mm", WarehouseID: 2, Quantity: 7}); err != nil {
+				t.Fatal(err)
+			}
+			before := s.Items()
+			if err := s.Move(tt.sku, tt.to, tt.quantity); err == nil {
+				t.Error("Move succeeded, want an error")
+			}
+			if after := s.Items(); !slices.Equal(after, before) {
+				t.Errorf("items after rejected move = %+v, want %+v", after, before)
+			}
+		})
 	}
 }
 
