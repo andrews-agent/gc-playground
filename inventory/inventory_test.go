@@ -114,3 +114,30 @@ func TestMoveInBackground(t *testing.T) {
 		t.Errorf("destination item = %+v, want %+v", moved, wantDestination)
 	}
 }
+
+func TestMoveAccumulatesDestination(t *testing.T) {
+	s := Sample()
+	transferred := 0
+	for _, quantity := range []int{20, 15, 0} {
+		if err := s.Move("BOLT-10", 2, quantity); err != nil {
+			t.Fatal(err)
+		}
+		transferred += quantity
+		source, err := s.Item("BOLT-10")
+		if err != nil {
+			t.Fatal(err)
+		}
+		destination, err := s.Item("BOLT-10@2")
+		if err != nil {
+			t.Fatal(err)
+		}
+		wantSource := Item{SKU: "BOLT-10", Name: "Bolt 10 mm", WarehouseID: 1, Quantity: 120 - transferred}
+		wantDestination := Item{SKU: "BOLT-10@2", Name: "Bolt 10 mm", WarehouseID: 2, Quantity: transferred}
+		if source != wantSource {
+			t.Errorf("after moving %d: source = %+v, want %+v", quantity, source, wantSource)
+		}
+		if destination != wantDestination {
+			t.Errorf("after moving %d: destination = %+v, want %+v", quantity, destination, wantDestination)
+		}
+	}
+}

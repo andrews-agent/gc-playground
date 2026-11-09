@@ -110,7 +110,7 @@ func (s *Store) Move(sku string, to int, quantity int) error {
 	moved := item
 	moved.SKU = item.SKU + "@" + fmt.Sprint(to)
 	moved.WarehouseID = to
-	moved.Quantity = quantity
+	moved.Quantity = s.items[moved.SKU].Quantity + quantity
 	s.items[moved.SKU] = moved
 	return nil
 }
