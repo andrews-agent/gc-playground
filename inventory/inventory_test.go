@@ -26,6 +26,11 @@ func TestNotFoundWrapping(t *testing.T) {
 			_, err := StockReport(s)
 			return err
 		}},
+		{"low stock warehouse", func(s *Store) error {
+			delete(s.warehouses, 1)
+			_, err := LowStock(s, 5)
+			return err
+		}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
