@@ -30,7 +30,11 @@ func main() {
 	case "low":
 		threshold := 5
 		if len(os.Args) > 2 {
-			threshold, _ = strconv.Atoi(os.Args[2])
+			threshold, err = strconv.Atoi(os.Args[2])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "invalid threshold: %s\n", os.Args[2])
+				os.Exit(2)
+			}
 		}
 		out, err = inventory.LowStock(s, threshold)
 	case "show":
