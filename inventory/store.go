@@ -23,8 +23,9 @@ type Item struct {
 	Quantity    int
 }
 
-// Store is an in-memory stand-in for the database. Every method is one query,
-// and Queries counts them.
+// Store is an in-memory stand-in for the database.
+// Queries counts calls to Warehouse, Warehouses, Item, and Items, including
+// failed lookups and calls made internally by other methods.
 type Store struct {
 	warehouses map[int]Warehouse
 	items      map[string]Item
