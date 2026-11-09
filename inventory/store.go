@@ -40,10 +40,12 @@ func (s *Store) AddWarehouse(w Warehouse) {
 	s.warehouses[w.ID] = w
 }
 
+// AddItem stores an item with its SKU normalized to uppercase for lookup.
 func (s *Store) AddItem(item Item) error {
 	if _, err := s.Warehouse(item.WarehouseID); err != nil {
 		return fmt.Errorf("add item %s: %w", item.SKU, err)
 	}
+	item.SKU = strings.ToUpper(item.SKU)
 	s.items[item.SKU] = item
 	return nil
 }
