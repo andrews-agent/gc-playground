@@ -41,7 +41,14 @@ func TestStockReport(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(out)
+	want := "BELT-1\tDrive belt\t31\tLisbon\n" +
+		"BOLT-10\tBolt 10 mm\t120\tBerlin\n" +
+		"GEAR-L\tLarge gear\t0\tTbilisi\n" +
+		"GEAR-S\tSmall gear\t5\tLisbon\n" +
+		"NUT-10\tNut 10 mm\t4\tBerlin\n"
+	if out != want {
+		t.Errorf("StockReport = %q, want %q", out, want)
+	}
 }
 
 func TestLowStock(t *testing.T) {
