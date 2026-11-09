@@ -96,7 +96,16 @@ func TestMoveInBackground(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if item.Quantity != 100 {
-		t.Errorf("got %d", item.Quantity)
+	wantSource := Item{SKU: "BOLT-10", Name: "Bolt 10 mm", WarehouseID: 1, Quantity: 100}
+	if item != wantSource {
+		t.Errorf("source item = %+v, want %+v", item, wantSource)
+	}
+	moved, err := s.Item("BOLT-10@2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantDestination := Item{SKU: "BOLT-10@2", Name: "Bolt 10 mm", WarehouseID: 2, Quantity: 20}
+	if moved != wantDestination {
+		t.Errorf("destination item = %+v, want %+v", moved, wantDestination)
 	}
 }
