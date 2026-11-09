@@ -11,7 +11,7 @@ func StockReport(s *Store) (string, error) {
 	for _, item := range s.Items() {
 		w, err := s.Warehouse(item.WarehouseID)
 		if err != nil {
-			return "", fmt.Errorf("stock report: %v", err)
+			return "", fmt.Errorf("stock report: %w", err)
 		}
 		fmt.Fprintf(&out, "%s\t%s\t%d\t%s\n", item.SKU, item.Name, item.Quantity, w.Name)
 	}
@@ -44,11 +44,11 @@ func LowStock(s *Store, threshold int) (string, error) {
 func ItemLine(s *Store, sku string) (string, error) {
 	item, err := s.Item(sku)
 	if err != nil {
-		return "", fmt.Errorf("show: %v", err)
+		return "", fmt.Errorf("show: %w", err)
 	}
 	w, err := s.Warehouse(item.WarehouseID)
 	if err != nil {
-		return "", fmt.Errorf("show: %v", err)
+		return "", fmt.Errorf("show: %w", err)
 	}
 	return fmt.Sprintf("%s %s: %d in %s", item.SKU, item.Name, item.Quantity, w.Name), nil
 }
