@@ -96,6 +96,7 @@ func (s *Store) Items() []Item {
 }
 
 // Move moves quantity of an item to another warehouse.
+// It rejects negative quantities without changing any items.
 func (s *Store) Move(sku string, to int, quantity int) error {
 	item, err := s.Item(sku)
 	if err != nil {
@@ -103,6 +104,9 @@ func (s *Store) Move(sku string, to int, quantity int) error {
 	}
 	if _, err := s.Warehouse(to); err != nil {
 		return fmt.Errorf("move: %w", err)
+	}
+	if quantity < 0 {
+		return fmt.Errorf("move %s: quantity must not be negative", sku)
 	}
 	if quantity > item.Quantity {
 		return fmt.Errorf("move %s: only %d left", sku, item.Quantity)
