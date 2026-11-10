@@ -3,8 +3,39 @@ package inventory
 import (
 	"errors"
 	"maps"
+	"slices"
 	"testing"
 )
+
+func TestItems(t *testing.T) {
+	a := Item{SKU: "A", Name: "First", WarehouseID: 1, Quantity: 7}
+	b := Item{SKU: "B", Name: "Second", WarehouseID: 2, Quantity: 0}
+	c := Item{SKU: "C", Name: "Third", WarehouseID: 1, Quantity: 12}
+	for _, tt := range []struct {
+		name  string
+		items []Item
+		want  []Item
+	}{
+		{"empty", nil, nil},
+		{"single", []Item{b}, []Item{b}},
+		{"out of order", []Item{c, a, b}, []Item{a, b, c}},
+		{"reverse order", []Item{c, b, a}, []Item{a, b, c}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			s := NewStore()
+			s.AddWarehouse(Warehouse{ID: 1, Name: "Berlin"})
+			s.AddWarehouse(Warehouse{ID: 2, Name: "Lisbon"})
+			for _, item := range tt.items {
+				if err := s.AddItem(item); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if got := s.Items(); !slices.Equal(got, tt.want) {
+				t.Errorf("Items() = %+v, want %+v", got, tt.want)
+			}
+		})
+	}
+}
 
 func TestWarehousesMissingID(t *testing.T) {
 	for _, tt := range []struct {
