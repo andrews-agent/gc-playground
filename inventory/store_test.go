@@ -1,9 +1,29 @@
 package inventory
 
 import (
+	"errors"
 	"maps"
 	"testing"
 )
+
+func TestWarehousesMissingID(t *testing.T) {
+	for _, tt := range []struct {
+		name string
+		ids  []int
+	}{
+		{"only ID", []int{99}},
+		{"first ID", []int{99, 1, 2}},
+		{"middle ID", []int{1, 99, 2}},
+		{"last ID", []int{1, 2, 99}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := Sample().Warehouses(tt.ids)
+			if !errors.Is(err, ErrNotFound) {
+				t.Errorf("Warehouses(%v) error = %v, want ErrNotFound in chain", tt.ids, err)
+			}
+		})
+	}
+}
 
 func TestWarehouse(t *testing.T) {
 	for _, want := range []Warehouse{
