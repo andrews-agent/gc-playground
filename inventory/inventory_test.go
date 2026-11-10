@@ -121,6 +121,33 @@ func TestLowStock(t *testing.T) {
 	}
 }
 
+func TestLowStockSkipsUnselectedWarehouses(t *testing.T) {
+	for _, tt := range []struct {
+		name      string
+		threshold int
+		want      string
+	}{
+		{"no matches", -1, ""},
+		{"some matches", 5, "GEAR-L\t0\tTbilisi\nGEAR-S\t5\tLisbon\nNUT-10\t4\tBerlin\n"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			s := Sample()
+			s.AddWarehouse(Warehouse{ID: 4, Name: "Missing"})
+			if err := s.AddItem(Item{SKU: "HIGH", WarehouseID: 4, Quantity: 100}); err != nil {
+				t.Fatal(err)
+			}
+			delete(s.warehouses, 4)
+			out, err := LowStock(s, tt.threshold)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if out != tt.want {
+				t.Errorf("LowStock = %q, want %q", out, tt.want)
+			}
+		})
+	}
+}
+
 func TestItemLine(t *testing.T) {
 	line, err := ItemLine(Sample(), "gear-s")
 	if err != nil {
