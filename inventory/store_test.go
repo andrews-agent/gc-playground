@@ -1,6 +1,37 @@
 package inventory
 
-import "testing"
+import (
+	"maps"
+	"testing"
+)
+
+func TestWarehouses(t *testing.T) {
+	berlin := Warehouse{ID: 1, Name: "Berlin"}
+	lisbon := Warehouse{ID: 2, Name: "Lisbon"}
+	tests := []struct {
+		name string
+		ids  []int
+		want map[int]Warehouse
+	}{
+		{"nil", nil, map[int]Warehouse{}},
+		{"empty", []int{}, map[int]Warehouse{}},
+		{"single", []int{2}, map[int]Warehouse{2: lisbon}},
+		{"multiple", []int{2, 1}, map[int]Warehouse{1: berlin, 2: lisbon}},
+		{"duplicates", []int{2, 1, 2}, map[int]Warehouse{1: berlin, 2: lisbon}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := Sample()
+			got, err := s.Warehouses(tt.ids)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !maps.Equal(got, tt.want) {
+				t.Errorf("Warehouses(%v) = %v, want %v", tt.ids, got, tt.want)
+			}
+		})
+	}
+}
 
 func TestStoreQueries(t *testing.T) {
 	tests := []struct {
