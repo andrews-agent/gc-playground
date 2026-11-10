@@ -218,7 +218,7 @@ func TestMoveInBackground(t *testing.T) {
 func TestMoveAccumulatesDestination(t *testing.T) {
 	s := Sample()
 	transferred := 0
-	for _, quantity := range []int{20, 15, 0} {
+	for _, quantity := range []int{20, 15, 0, 85, 0} {
 		if err := s.Move("BOLT-10", 2, quantity); err != nil {
 			t.Fatal(err)
 		}
