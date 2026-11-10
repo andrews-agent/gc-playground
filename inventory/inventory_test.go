@@ -32,6 +32,22 @@ func TestAddItemNormalizesSKU(t *testing.T) {
 	}
 }
 
+func TestRejectedAddItemPreservesItems(t *testing.T) {
+	for _, sku := range []string{"NEW", "BOLT-10", "bolt-10"} {
+		t.Run(sku, func(t *testing.T) {
+			s := Sample()
+			before := s.Items()
+			err := s.AddItem(Item{SKU: sku, Name: "Rejected item", WarehouseID: 99, Quantity: 7})
+			if !errors.Is(err, ErrNotFound) {
+				t.Errorf("AddItem error = %v, want ErrNotFound in chain", err)
+			}
+			if after := s.Items(); !slices.Equal(after, before) {
+				t.Errorf("items after rejected add = %+v, want %+v", after, before)
+			}
+		})
+	}
+}
+
 func TestNotFoundWrapping(t *testing.T) {
 	tests := []struct {
 		name string
