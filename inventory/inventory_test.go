@@ -125,6 +125,8 @@ func TestRejectedMovePreservesItems(t *testing.T) {
 		{"missing item", "MISSING", 2, 1},
 		{"missing warehouse", "BOLT-10", 99, 1},
 		{"insufficient stock", "BOLT-10", 2, 121},
+		{"negative quantity existing destination", "BOLT-10", 2, -1},
+		{"negative quantity new destination", "BOLT-10", 3, -1},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
