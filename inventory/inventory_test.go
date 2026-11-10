@@ -6,6 +6,32 @@ import (
 	"testing"
 )
 
+func TestAddItemNormalizesSKU(t *testing.T) {
+	for _, sku := range []string{"BOLT-10", "bolt-10", "Bolt-10"} {
+		t.Run(sku, func(t *testing.T) {
+			s := NewStore()
+			s.AddWarehouse(Warehouse{ID: 1, Name: "Berlin"})
+			item := Item{SKU: sku, Name: "Bolt 10 mm", WarehouseID: 1, Quantity: 20}
+			if err := s.AddItem(item); err != nil {
+				t.Fatal(err)
+			}
+			want := item
+			want.SKU = "BOLT-10"
+			for _, lookup := range []string{"BOLT-10", "bolt-10", "Bolt-10"} {
+				got, err := s.Item(lookup)
+				if err != nil {
+					t.Errorf("Item(%q): %v", lookup, err)
+				} else if got != want {
+					t.Errorf("Item(%q) = %+v, want %+v", lookup, got, want)
+				}
+			}
+			if got := s.Items(); len(got) != 1 || got[0] != want {
+				t.Errorf("Items() = %+v, want [%+v]", got, want)
+			}
+		})
+	}
+}
+
 func TestNotFoundWrapping(t *testing.T) {
 	tests := []struct {
 		name string
