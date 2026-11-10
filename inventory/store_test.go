@@ -5,6 +5,24 @@ import (
 	"testing"
 )
 
+func TestWarehouse(t *testing.T) {
+	for _, want := range []Warehouse{
+		{ID: 1, Name: "Berlin"},
+		{ID: 2, Name: "Lisbon"},
+		{ID: 3, Name: "Tbilisi"},
+	} {
+		t.Run(want.Name, func(t *testing.T) {
+			got, err := Sample().Warehouse(want.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != want {
+				t.Errorf("Warehouse(%d) = %+v, want %+v", want.ID, got, want)
+			}
+		})
+	}
+}
+
 func TestWarehouses(t *testing.T) {
 	berlin := Warehouse{ID: 1, Name: "Berlin"}
 	lisbon := Warehouse{ID: 2, Name: "Lisbon"}
