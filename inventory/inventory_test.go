@@ -107,6 +107,28 @@ func TestNotFoundWrapping(t *testing.T) {
 	}
 }
 
+func TestReportsEmptyStore(t *testing.T) {
+	for _, tt := range []struct {
+		name string
+		run  func(*Store) (string, error)
+	}{
+		{"stock", StockReport},
+		{"low negative threshold", func(s *Store) (string, error) { return LowStock(s, -1) }},
+		{"low zero threshold", func(s *Store) (string, error) { return LowStock(s, 0) }},
+		{"low positive threshold", func(s *Store) (string, error) { return LowStock(s, 5) }},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			out, err := tt.run(NewStore())
+			if err != nil {
+				t.Fatal(err)
+			}
+			if out != "" {
+				t.Errorf("empty-store report = %q, want empty output", out)
+			}
+		})
+	}
+}
+
 func TestStockReport(t *testing.T) {
 	out, err := StockReport(Sample())
 	if err != nil {
