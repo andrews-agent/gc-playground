@@ -2,6 +2,7 @@ package inventory
 
 import (
 	"errors"
+	"fmt"
 	"slices"
 	"testing"
 )
@@ -353,6 +354,24 @@ func TestMoveDestinationCapacity(t *testing.T) {
 			destination.Quantity += tt.quantity
 			if got != destination || source.Quantity != 120-tt.quantity {
 				t.Errorf("source = %+v, destination = %+v; want source quantity %d, destination %+v", source, got, 120-tt.quantity, destination)
+			}
+		})
+	}
+}
+
+func TestMoveRejectsDestinationWarehouseConflict(t *testing.T) {
+	for _, quantity := range []int{0, 20} {
+		t.Run(fmt.Sprint(quantity), func(t *testing.T) {
+			s := Sample()
+			if err := s.AddItem(Item{SKU: "BOLT-10@2", Name: "Other stock", WarehouseID: 3, Quantity: 7}); err != nil {
+				t.Fatal(err)
+			}
+			before := s.Items()
+			if err := s.Move("BOLT-10", 2, quantity); err == nil {
+				t.Error("Move succeeded with destination SKU in another warehouse")
+			}
+			if after := s.Items(); !slices.Equal(after, before) {
+				t.Errorf("items after rejected move = %+v, want %+v", after, before)
 			}
 		})
 	}

@@ -97,6 +97,7 @@ func (s *Store) Items() []Item {
 
 // Move moves quantity of an item to another warehouse.
 // It rejects negative quantities and destination overflow without changing any items.
+// It also rejects a destination SKU that belongs to a different warehouse.
 func (s *Store) Move(sku string, to int, quantity int) error {
 	item, err := s.Item(sku)
 	if err != nil {
@@ -114,11 +115,15 @@ func (s *Store) Move(sku string, to int, quantity int) error {
 	moved := item
 	moved.SKU = item.SKU + "@" + fmt.Sprint(to)
 	moved.WarehouseID = to
+	destination, exists := s.items[moved.SKU]
+	if exists && destination.WarehouseID != to {
+		return fmt.Errorf("move %s: destination SKU %s belongs to warehouse %d", sku, moved.SKU, destination.WarehouseID)
+	}
 	maxInt := int(^uint(0) >> 1)
-	if s.items[moved.SKU].Quantity > maxInt-quantity {
+	if destination.Quantity > maxInt-quantity {
 		return fmt.Errorf("move %s: destination quantity would overflow", sku)
 	}
-	moved.Quantity = s.items[moved.SKU].Quantity + quantity
+	moved.Quantity = destination.Quantity + quantity
 	item.Quantity -= quantity
 	s.items[item.SKU] = item
 	s.items[moved.SKU] = moved
