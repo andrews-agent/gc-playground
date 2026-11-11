@@ -233,6 +233,28 @@ func TestRejectedMovePreservesItems(t *testing.T) {
 	}
 }
 
+func TestMoveCaseInsensitiveSKU(t *testing.T) {
+	for _, sku := range []string{"BOLT-10", "bolt-10", "Bolt-10"} {
+		t.Run(sku, func(t *testing.T) {
+			s := Sample()
+			if err := s.Move(sku, 2, 20); err != nil {
+				t.Fatal(err)
+			}
+			want := []Item{
+				{SKU: "BELT-1", Name: "Drive belt", WarehouseID: 2, Quantity: 31},
+				{SKU: "BOLT-10", Name: "Bolt 10 mm", WarehouseID: 1, Quantity: 100},
+				{SKU: "BOLT-10@2", Name: "Bolt 10 mm", WarehouseID: 2, Quantity: 20},
+				{SKU: "GEAR-L", Name: "Large gear", WarehouseID: 3, Quantity: 0},
+				{SKU: "GEAR-S", Name: "Small gear", WarehouseID: 2, Quantity: 5},
+				{SKU: "NUT-10", Name: "Nut 10 mm", WarehouseID: 1, Quantity: 4},
+			}
+			if got := s.Items(); !slices.Equal(got, want) {
+				t.Errorf("items after Move(%q) = %+v, want %+v", sku, got, want)
+			}
+		})
+	}
+}
+
 func TestMoveInBackground(t *testing.T) {
 	s := Sample()
 	done := make(chan error)
