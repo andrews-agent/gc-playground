@@ -40,6 +40,18 @@ func TestCommand(t *testing.T) {
 			stderr:   "not a number: invalid\n",
 			exitCode: 1,
 		},
+		{
+			name:     "positive overflow after a number",
+			args:     []string{"1", "1e999", "3"},
+			stderr:   "not a number: 1e999\n",
+			exitCode: 1,
+		},
+		{
+			name:     "negative overflow after a number",
+			args:     []string{"1", "-1e999", "3"},
+			stderr:   "not a number: -1e999\n",
+			exitCode: 1,
+		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := exec.Command(binary, tt.args...)
