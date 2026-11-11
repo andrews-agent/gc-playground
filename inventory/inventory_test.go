@@ -32,6 +32,29 @@ func TestAddItemNormalizesSKU(t *testing.T) {
 	}
 }
 
+func TestAddItemReplacesExistingSKU(t *testing.T) {
+	for _, sku := range []string{"BOLT-10", "bolt-10", "Bolt-10"} {
+		t.Run(sku, func(t *testing.T) {
+			s := Sample()
+			want := Item{SKU: "BOLT-10", Name: "Replacement bolt", WarehouseID: 2, Quantity: 7}
+			before := s.Items()
+			item := want
+			item.SKU = sku
+			if err := s.AddItem(item); err != nil {
+				t.Fatal(err)
+			}
+			for i := range before {
+				if before[i].SKU == want.SKU {
+					before[i] = want
+				}
+			}
+			if got := s.Items(); !slices.Equal(got, before) {
+				t.Errorf("items after replacement = %+v, want %+v", got, before)
+			}
+		})
+	}
+}
+
 func TestRejectedAddItemPreservesItems(t *testing.T) {
 	for _, sku := range []string{"NEW", "BOLT-10", "bolt-10"} {
 		t.Run(sku, func(t *testing.T) {
