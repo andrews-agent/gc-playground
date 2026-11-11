@@ -241,3 +241,52 @@ func TestMoveAccumulatesDestination(t *testing.T) {
 		}
 	}
 }
+
+func TestMoveDestinationCapacity(t *testing.T) {
+	maxInt := int(^uint(0) >> 1)
+	for _, tt := range []struct {
+		name        string
+		destination int
+		quantity    int
+		wantError   bool
+	}{
+		{"exact capacity", maxInt - 1, 1, false},
+		{"past capacity", maxInt - 1, 2, true},
+		{"full destination", maxInt, 1, true},
+		{"zero to full destination", maxInt, 0, false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			s := Sample()
+			destination := Item{SKU: "BOLT-10@2", Name: "Bolt 10 mm", WarehouseID: 2, Quantity: tt.destination}
+			if err := s.AddItem(destination); err != nil {
+				t.Fatal(err)
+			}
+			before := s.Items()
+			err := s.Move("BOLT-10", 2, tt.quantity)
+			if tt.wantError {
+				if err == nil {
+					t.Error("Move succeeded, want an overflow error")
+				}
+				if after := s.Items(); !slices.Equal(after, before) {
+					t.Errorf("items after rejected move = %+v, want %+v", after, before)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			source, err := s.Item("BOLT-10")
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := s.Item(destination.SKU)
+			if err != nil {
+				t.Fatal(err)
+			}
+			destination.Quantity += tt.quantity
+			if got != destination || source.Quantity != 120-tt.quantity {
+				t.Errorf("source = %+v, destination = %+v; want source quantity %d, destination %+v", source, got, 120-tt.quantity, destination)
+			}
+		})
+	}
+}
