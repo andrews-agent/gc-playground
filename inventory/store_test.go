@@ -7,6 +7,32 @@ import (
 	"testing"
 )
 
+func TestMissingLookupsInEmptyStore(t *testing.T) {
+	for _, tt := range []struct {
+		name string
+		run  func(*Store) error
+	}{
+		{"item", func(s *Store) error {
+			_, err := s.Item("MISSING")
+			return err
+		}},
+		{"warehouse", func(s *Store) error {
+			_, err := s.Warehouse(99)
+			return err
+		}},
+		{"warehouses", func(s *Store) error {
+			_, err := s.Warehouses([]int{99})
+			return err
+		}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.run(NewStore()); !errors.Is(err, ErrNotFound) {
+				t.Errorf("empty-store lookup error = %v, want ErrNotFound in chain", err)
+			}
+		})
+	}
+}
+
 func TestItems(t *testing.T) {
 	a := Item{SKU: "A", Name: "First", WarehouseID: 1, Quantity: 7}
 	b := Item{SKU: "B", Name: "Second", WarehouseID: 2, Quantity: 0}
