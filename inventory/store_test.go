@@ -147,6 +147,9 @@ func TestWarehouses(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			if got == nil {
+				t.Fatal("Warehouses returned nil on success, want an initialized map")
+			}
 			if !maps.Equal(got, tt.want) {
 				t.Errorf("Warehouses(%v) = %v, want %v", tt.ids, got, tt.want)
 			}
