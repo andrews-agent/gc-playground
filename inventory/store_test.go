@@ -10,17 +10,17 @@ import (
 func TestMissingLookupsInEmptyStore(t *testing.T) {
 	for _, tt := range []struct {
 		name string
-		run  func(*Store) error
+		run  func(*testing.T, *Store) error
 	}{
-		{"item", func(s *Store) error {
+		{"item", func(t *testing.T, s *Store) error {
 			_, err := s.Item("MISSING")
 			return err
 		}},
-		{"warehouse", func(s *Store) error {
+		{"warehouse", func(t *testing.T, s *Store) error {
 			_, err := s.Warehouse(99)
 			return err
 		}},
-		{"warehouses", func(s *Store) error {
+		{"warehouses", func(t *testing.T, s *Store) error {
 			got, err := s.Warehouses([]int{99})
 			if got != nil {
 				t.Errorf("missing warehouses = %v, want nil", got)
@@ -29,7 +29,7 @@ func TestMissingLookupsInEmptyStore(t *testing.T) {
 		}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.run(NewStore()); !errors.Is(err, ErrNotFound) {
+			if err := tt.run(t, NewStore()); !errors.Is(err, ErrNotFound) {
 				t.Errorf("empty-store lookup error = %v, want ErrNotFound in chain", err)
 			}
 		})
