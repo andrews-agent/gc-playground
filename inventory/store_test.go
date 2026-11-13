@@ -21,7 +21,10 @@ func TestMissingLookupsInEmptyStore(t *testing.T) {
 			return err
 		}},
 		{"warehouses", func(s *Store) error {
-			_, err := s.Warehouses([]int{99})
+			got, err := s.Warehouses([]int{99})
+			if got != nil {
+				t.Errorf("missing warehouses = %v, want nil", got)
+			}
 			return err
 		}},
 	} {
@@ -74,9 +77,12 @@ func TestWarehousesMissingID(t *testing.T) {
 		{"last ID", []int{1, 2, 99}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := Sample().Warehouses(tt.ids)
+			got, err := Sample().Warehouses(tt.ids)
 			if !errors.Is(err, ErrNotFound) {
 				t.Errorf("Warehouses(%v) error = %v, want ErrNotFound in chain", tt.ids, err)
+			}
+			if got != nil {
+				t.Errorf("Warehouses(%v) = %v, want nil on error", tt.ids, got)
 			}
 		})
 	}
