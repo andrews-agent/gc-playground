@@ -36,6 +36,38 @@ func TestMissingLookupsInEmptyStore(t *testing.T) {
 	}
 }
 
+func TestMissingSingleLookupResults(t *testing.T) {
+	for _, store := range []struct {
+		name string
+		new  func() *Store
+	}{
+		{"empty", NewStore},
+		{"populated", Sample},
+	} {
+		t.Run(store.name, func(t *testing.T) {
+			s := store.new()
+			t.Run("item", func(t *testing.T) {
+				got, err := s.Item("MISSING")
+				if !errors.Is(err, ErrNotFound) {
+					t.Errorf("Item error = %v, want ErrNotFound in chain", err)
+				}
+				if got != (Item{}) {
+					t.Errorf("missing item = %+v, want zero value", got)
+				}
+			})
+			t.Run("warehouse", func(t *testing.T) {
+				got, err := s.Warehouse(99)
+				if !errors.Is(err, ErrNotFound) {
+					t.Errorf("Warehouse error = %v, want ErrNotFound in chain", err)
+				}
+				if got != (Warehouse{}) {
+					t.Errorf("missing warehouse = %+v, want zero value", got)
+				}
+			})
+		})
+	}
+}
+
 func TestItems(t *testing.T) {
 	a := Item{SKU: "A", Name: "First", WarehouseID: 1, Quantity: 7}
 	b := Item{SKU: "B", Name: "Second", WarehouseID: 2, Quantity: 0}
