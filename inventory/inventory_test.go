@@ -182,13 +182,15 @@ func TestLowStock(t *testing.T) {
 		{threshold: 200, want: "BELT-1\t31\tLisbon\nBOLT-10\t120\tBerlin\nGEAR-L\t0\tTbilisi\nGEAR-S\t5\tLisbon\nNUT-10\t4\tBerlin\n"},
 	}
 	for _, tt := range tests {
-		out, err := LowStock(Sample(), tt.threshold)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if out != tt.want {
-			t.Errorf("threshold %d: got %q, want %q", tt.threshold, out, tt.want)
-		}
+		t.Run(fmt.Sprint(tt.threshold), func(t *testing.T) {
+			out, err := LowStock(Sample(), tt.threshold)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if out != tt.want {
+				t.Errorf("threshold %d: got %q, want %q", tt.threshold, out, tt.want)
+			}
+		})
 	}
 }
 

@@ -2,6 +2,7 @@ package inventory
 
 import (
 	"errors"
+	"fmt"
 	"maps"
 	"slices"
 	"testing"
@@ -140,21 +141,23 @@ func TestWarehouse(t *testing.T) {
 
 func TestAddWarehouseReplacesExistingID(t *testing.T) {
 	for _, id := range []int{1, 2, 3} {
-		s := Sample()
-		before, err := s.Warehouses([]int{1, 2, 3})
-		if err != nil {
-			t.Fatal(err)
-		}
-		want := Warehouse{ID: id, Name: "Replacement warehouse"}
-		s.AddWarehouse(want)
-		before[id] = want
-		got, err := s.Warehouses([]int{1, 2, 3})
-		if err != nil {
-			t.Fatal(err)
-		}
-		if !maps.Equal(got, before) {
-			t.Errorf("warehouses after replacing ID %d = %v, want %v", id, got, before)
-		}
+		t.Run(fmt.Sprint(id), func(t *testing.T) {
+			s := Sample()
+			before, err := s.Warehouses([]int{1, 2, 3})
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := Warehouse{ID: id, Name: "Replacement warehouse"}
+			s.AddWarehouse(want)
+			before[id] = want
+			got, err := s.Warehouses([]int{1, 2, 3})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !maps.Equal(got, before) {
+				t.Errorf("warehouses after replacing ID %d = %v, want %v", id, got, before)
+			}
+		})
 	}
 }
 
