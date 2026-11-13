@@ -108,6 +108,31 @@ func TestNotFoundWrapping(t *testing.T) {
 	}
 }
 
+func TestReportsDiscardOutputOnError(t *testing.T) {
+	for _, tt := range []struct {
+		name string
+		run  func(*Store) (string, error)
+	}{
+		{"show missing item", func(s *Store) (string, error) { return ItemLine(s, "MISSING") }},
+		{"show missing warehouse", func(s *Store) (string, error) { return ItemLine(s, "GEAR-L") }},
+		{"stock missing warehouse after valid rows", StockReport},
+		{"low stock missing warehouse", func(s *Store) (string, error) { return LowStock(s, 5) }},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			s := Sample()
+			// GEAR-L sorts after valid stock-report rows from other warehouses.
+			delete(s.warehouses, 3)
+			out, err := tt.run(s)
+			if !errors.Is(err, ErrNotFound) {
+				t.Errorf("error = %v, want ErrNotFound in chain", err)
+			}
+			if out != "" {
+				t.Errorf("output on error = %q, want empty output", out)
+			}
+		})
+	}
+}
+
 func TestReportsEmptyStore(t *testing.T) {
 	for _, tt := range []struct {
 		name string
