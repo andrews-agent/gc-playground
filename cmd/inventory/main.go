@@ -26,8 +26,16 @@ func main() {
 	var err error
 	switch os.Args[1] {
 	case "stock":
+		if len(os.Args) != 2 {
+			fmt.Fprintln(os.Stderr, "usage: inventory stock")
+			os.Exit(2)
+		}
 		out, err = inventory.StockReport(s)
 	case "low":
+		if len(os.Args) > 3 {
+			fmt.Fprintln(os.Stderr, "usage: inventory low [threshold]")
+			os.Exit(2)
+		}
 		threshold := 5
 		if len(os.Args) > 2 {
 			threshold, err = strconv.Atoi(os.Args[2])
@@ -38,7 +46,7 @@ func main() {
 		}
 		out, err = inventory.LowStock(s, threshold)
 	case "show":
-		if len(os.Args) < 3 {
+		if len(os.Args) != 3 {
 			fmt.Fprintln(os.Stderr, "usage: inventory show <sku>")
 			os.Exit(2)
 		}

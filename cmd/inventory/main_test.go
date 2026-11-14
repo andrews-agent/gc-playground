@@ -84,6 +84,24 @@ func TestCommand(t *testing.T) {
 			stderr:   "invalid threshold: 999999999999999999999999999999\n",
 			exitCode: 2,
 		},
+		{
+			name:     "stock extra argument",
+			args:     []string{"stock", "extra"},
+			stderr:   "usage: inventory stock\n",
+			exitCode: 2,
+		},
+		{
+			name:     "low extra argument",
+			args:     []string{"low", "5", "extra"},
+			stderr:   "usage: inventory low [threshold]\n",
+			exitCode: 2,
+		},
+		{
+			name:     "show extra argument",
+			args:     []string{"show", "BOLT-10", "extra"},
+			stderr:   "usage: inventory show <sku>\n",
+			exitCode: 2,
+		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := exec.Command(binary, tt.args...)
