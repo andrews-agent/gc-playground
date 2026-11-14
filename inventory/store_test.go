@@ -99,6 +99,28 @@ func TestItems(t *testing.T) {
 	}
 }
 
+func TestItemsResultIsIndependent(t *testing.T) {
+	s := Sample()
+	want := slices.Clone(s.Items())
+	got := s.Items()
+	got[0] = Item{SKU: "CHANGED", Quantity: -1}
+	if stored := s.Items(); !slices.Equal(stored, want) {
+		t.Errorf("items after changing result = %+v, want %+v", stored, want)
+	}
+
+	snapshot := s.Items()
+	before := slices.Clone(snapshot)
+	replacement := Item{SKU: "BELT-1", Name: "Replacement belt", WarehouseID: 2, Quantity: 7}
+	if err := s.AddItem(replacement); err != nil {
+		t.Fatal(err)
+	}
+	// Read again to catch implementations that reuse a result buffer.
+	s.Items()
+	if !slices.Equal(snapshot, before) {
+		t.Errorf("previous result after replacing item = %+v, want %+v", snapshot, before)
+	}
+}
+
 func TestWarehousesMissingID(t *testing.T) {
 	for _, tt := range []struct {
 		name string
