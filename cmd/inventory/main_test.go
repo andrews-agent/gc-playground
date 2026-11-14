@@ -63,6 +63,20 @@ func TestCommand(t *testing.T) {
 			stdout: "GEAR-L\t0\tTbilisi\nGEAR-S\t5\tLisbon\nNUT-10\t4\tBerlin\n\n",
 		},
 		{
+			name:   "positive threshold below default",
+			args:   []string{"low", "1"},
+			stdout: "GEAR-L\t0\tTbilisi\n\n",
+		},
+		{
+			name: "positive threshold above all quantities",
+			args: []string{"low", "200"},
+			stdout: "BELT-1\t31\tLisbon\n" +
+				"BOLT-10\t120\tBerlin\n" +
+				"GEAR-L\t0\tTbilisi\n" +
+				"GEAR-S\t5\tLisbon\n" +
+				"NUT-10\t4\tBerlin\n\n",
+		},
+		{
 			name:   "zero",
 			args:   []string{"low", "0"},
 			stdout: "GEAR-L\t0\tTbilisi\n\n",
