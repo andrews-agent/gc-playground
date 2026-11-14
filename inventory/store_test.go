@@ -189,6 +189,36 @@ func TestWarehouses(t *testing.T) {
 	}
 }
 
+func TestWarehousesResultIsIndependent(t *testing.T) {
+	s := NewStore()
+	want := Warehouse{ID: 1, Name: "Berlin"}
+	s.AddWarehouse(want)
+	got, err := s.Warehouses([]int{1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got[1] = Warehouse{ID: 1, Name: "Changed result"}
+	stored, err := s.Warehouse(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stored != want {
+		t.Errorf("warehouse after changing result = %+v, want %+v", stored, want)
+	}
+	delete(got, 1)
+	stored, err = s.Warehouse(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stored != want {
+		t.Errorf("warehouse after deleting result entry = %+v, want %+v", stored, want)
+	}
+	s.AddWarehouse(Warehouse{ID: 2, Name: "Lisbon"})
+	if len(got) != 0 {
+		t.Errorf("result after adding warehouse = %v, want empty map", got)
+	}
+}
+
 func TestStoreQueries(t *testing.T) {
 	tests := []struct {
 		name string
