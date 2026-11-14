@@ -29,8 +29,3 @@ func Max(numbers []float64) float64 {
 	}
 	return max
 }
-
-// median is left over from an earlier version and has no callers.
-func median(numbers []float64) float64 {
-	return numbers[len(numbers)/2]
-}
