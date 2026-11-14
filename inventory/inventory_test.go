@@ -239,12 +239,25 @@ func TestLowStockQueryBudget(t *testing.T) {
 }
 
 func TestItemLine(t *testing.T) {
-	line, err := ItemLine(Sample(), "gear-s")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if line != "GEAR-S Small gear: 5 in Lisbon" {
-		t.Errorf("got %q", line)
+	for _, tt := range []struct {
+		sku  string
+		want string
+	}{
+		{"belt-1", "BELT-1 Drive belt: 31 in Lisbon"},
+		{"BOLT-10", "BOLT-10 Bolt 10 mm: 120 in Berlin"},
+		{"Gear-L", "GEAR-L Large gear: 0 in Tbilisi"},
+		{"gear-s", "GEAR-S Small gear: 5 in Lisbon"},
+		{"NUT-10", "NUT-10 Nut 10 mm: 4 in Berlin"},
+	} {
+		t.Run(tt.sku, func(t *testing.T) {
+			line, err := ItemLine(Sample(), tt.sku)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if line != tt.want {
+				t.Errorf("ItemLine(%q) = %q, want %q", tt.sku, line, tt.want)
+			}
+		})
 	}
 }
 
