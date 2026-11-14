@@ -242,6 +242,20 @@ func TestWarehousesResultIsIndependent(t *testing.T) {
 	if len(got) != 0 {
 		t.Errorf("result after adding warehouse = %v, want empty map", got)
 	}
+
+	snapshot, err := s.Warehouses([]int{1, 2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	before := maps.Clone(snapshot)
+	s.AddWarehouse(Warehouse{ID: 1, Name: "Replacement warehouse"})
+	// Read a different subset to catch implementations that reuse a result map.
+	if _, err := s.Warehouses([]int{1}); err != nil {
+		t.Fatal(err)
+	}
+	if !maps.Equal(snapshot, before) {
+		t.Errorf("previous result after replacing warehouse and reading again = %v, want %v", snapshot, before)
+	}
 }
 
 func TestStoreQueries(t *testing.T) {
