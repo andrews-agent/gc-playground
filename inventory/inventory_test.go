@@ -221,6 +221,23 @@ func TestLowStockSkipsUnselectedWarehouses(t *testing.T) {
 	}
 }
 
+func TestLowStockQueryBudget(t *testing.T) {
+	for _, threshold := range []int{-1, 0, 5, 200} {
+		t.Run(fmt.Sprint(threshold), func(t *testing.T) {
+			s := Sample()
+			before := s.Queries
+			if _, err := LowStock(s, threshold); err != nil {
+				t.Fatal(err)
+			}
+			// One item query and at most one batch warehouse query,
+			// regardless of how many items match or share a warehouse.
+			if got := s.Queries - before; got > 2 {
+				t.Errorf("LowStock query count = %d, want at most 2", got)
+			}
+		})
+	}
+}
+
 func TestItemLine(t *testing.T) {
 	line, err := ItemLine(Sample(), "gear-s")
 	if err != nil {
