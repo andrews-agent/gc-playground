@@ -396,8 +396,12 @@ func TestMoveDestinationCapacity(t *testing.T) {
 				t.Fatal(err)
 			}
 			destination.Quantity += tt.quantity
-			if got != destination || source.Quantity != 120-tt.quantity {
-				t.Errorf("source = %+v, destination = %+v; want source quantity %d, destination %+v", source, got, 120-tt.quantity, destination)
+			wantSource := Item{SKU: "BOLT-10", Name: "Bolt 10 mm", WarehouseID: 1, Quantity: 120 - tt.quantity}
+			if source != wantSource {
+				t.Errorf("source = %+v, want %+v", source, wantSource)
+			}
+			if got != destination {
+				t.Errorf("destination = %+v, want %+v", got, destination)
 			}
 		})
 	}
